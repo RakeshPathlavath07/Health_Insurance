@@ -5,6 +5,11 @@ Verifies tool routing accuracy, keyword presence, and execution latency.
 """
 import sys
 import os
+
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 import json
 import time
 from backend.app.dispatcher import route_and_execute
@@ -114,11 +119,67 @@ EVAL_CASES = [
         "query": "Which policy has zero co-payment and no room rent capping?",
         "expected_tool": "compare_policies",
         "expected_keywords": ["co-payment", "room"]
+    },
+    {
+        "id": "EVAL-16",
+        "category": "General Chat / Out of Scope",
+        "query": "what you do? why are you here?",
+        "expected_tool": "general_chat",
+        "expected_keywords": ["health insurance", "advisor"]
+    },
+    {
+        "id": "EVAL-17",
+        "category": "General Chat / Out of Scope",
+        "query": "who are you",
+        "expected_tool": "general_chat",
+        "expected_keywords": ["advisor", "insurance"]
+    },
+    {
+        "id": "EVAL-18",
+        "category": "General Chat / Out of Scope",
+        "query": "hello good morning",
+        "expected_tool": "general_chat",
+        "expected_keywords": ["hello", "advisor"]
+    },
+    {
+        "id": "EVAL-19",
+        "category": "General Chat / Out of Scope",
+        "query": "what can I ask you?",
+        "expected_tool": "general_chat",
+        "expected_keywords": ["policy", "compare"]
+    },
+    {
+        "id": "EVAL-20",
+        "category": "Short Casual English",
+        "query": "can you tell me a joke?",
+        "expected_tool": "general_chat",
+        "expected_keywords": ["health insurance", "advisor"]
+    },
+    {
+        "id": "EVAL-21",
+        "category": "Short Casual English",
+        "query": "is this app working?",
+        "expected_tool": "general_chat",
+        "expected_keywords": ["health insurance", "help"]
+    },
+    {
+        "id": "EVAL-22",
+        "category": "Nonsense / Gibberish",
+        "query": "asdfghjk 123456",
+        "expected_tool": "general_chat",
+        "expected_keywords": ["health insurance", "advisor"]
+    },
+    {
+        "id": "EVAL-23",
+        "category": "Nonsense / Gibberish",
+        "query": "xyz pdq random nonsense query",
+        "expected_tool": "general_chat",
+        "expected_keywords": ["health insurance", "help"]
     }
 ]
 
 def run_eval_suite():
-    print("=== STARTING AUTOMATED EVALUATION SUITE (15 BENCHMARK QUESTIONS) ===")
+    print(f"=== STARTING AUTOMATED EVALUATION SUITE ({len(EVAL_CASES)} BENCHMARK QUESTIONS) ===")
     
     passed_cases = 0
     failed_cases = 0

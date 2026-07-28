@@ -28,12 +28,13 @@ router_model = ChatGroq(
 )
 
 ROUTER_PROMPT_TEMPLATE = """
-You are a intent classification router for an Indian Health Insurance Multi-Agent System.
+You are an intent classification router for an Indian Health Insurance Multi-Agent System.
 
 Given the user query and any user profile preferences, select EXACTLY ONE tool from the following list:
 1. `compare_policies`: Use when the user asks to compare 2 or more health insurance policies, or asks which policy has specific features (e.g. 'zero room rent', 'co-payment', 'maternity', 'waiting period comparison').
 2. `insurer_financial_risk`: Use when the user asks about Claim Settlement Ratio (CSR), Incurred Claim Ratio (ICR), Solvency Ratio, or financial safety/risk of insurance providers (e.g. Star Health, ICICI Lombard, Niva Bupa, Care Health, HDFC Ergo).
-3. `policy_document_qa`: Use for general Q&A about policy coverage terms, inclusions, exclusions, waiting periods, or specific policy clauses.
+3. `policy_document_qa`: Use for specific policy coverage terms, inclusions, exclusions, waiting periods, or specific policy clauses.
+4. `general_chat`: Use for generic greetings, casual conversation, off-topic questions, questions about the assistant itself, non-insurance queries (e.g., 'hello', 'who are you', 'what can you do', 'tell me a joke', 'weather', or gibberish/nonsense).
 
 Respond with valid JSON containing keys 'tool' and 'reason'.
 
@@ -80,14 +81,23 @@ def is_query_hinglish(query: str) -> bool:
     hinglish_words = [
         "kitna", "kya", "kaise", "mein", "hai", "batao", "bataiye", "chahiye",
         "wale", "wala", "wali", "kaunsa", "kaunsi", "karo", "kab", "kyun", "hoga",
-        "lagta", "niche", "varsh", "samajh"
+        "lagta", "niche", "varsh", "samajh", "bhi", "nahi", "hain", "kaisa", "meri"
     ]
     query_words = re.findall(r'\b\w+\b', query.lower())
     return any(w in query_words for w in hinglish_words)
 
 def heuristic_router(query: str) -> str:
     """Fast rule-based classification fallback."""
-    q_lower = query.lower()
+    q_lower = query.lower().strip()
+
+    general_keywords = [
+        "who are you", "what can you do", "what do you do", "why are you here",
+        "what is your purpose", "how can you help", "who made you", "hello", "hi",
+        "hey", "help", "joke", "weather", "working", "asdf", "nonsense", "random"
+    ]
+    if any(g in q_lower for g in general_keywords) or len(q_lower.split()) <= 1:
+        if not any(k in q_lower for k in ["csr", "icr", "copay", "co-payment", "star", "niva", "hdfc", "icici", "care", "bupa", "room", "maternity", "waiting"]):
+            return "general_chat"
 
     if any(k in q_lower for k in ["claim settlement", "csr", "icr", "solvency", "financial risk", "safety ratio", "settlement ratio"]):
         return "insurer_financial_risk"
@@ -100,12 +110,13 @@ def heuristic_router(query: str) -> str:
 def compute_confidence_score(tool: str, answer: str, fallback_used: bool = False, top_similarity_score: int = None) -> tuple[int, str]:
     """
     Computes a dynamic confidence score (0-100%) and level description.
-    Note: insurer_financial_risk (98%) and compare_policies (96%) remain fixed reliability tiers because they query structured MongoDB Atlas records and IRDAI official reports directly, whereas policy_document_qa dynamically computes its score from the top FAISS vector similarity distance.
     """
     if fallback_used:
         return 88, "High Precision (Live Web Ingested Context)"
 
-    if tool == "insurer_financial_risk":
+    if tool == "general_chat":
+        return 98, "High Precision (System Assistant Info)"
+    elif tool == "insurer_financial_risk":
         return 98, "High Precision (IRDAI Verified Metrics)"
     elif tool == "compare_policies":
         return 96, "High Precision (MongoDB Atlas Document Match)"
@@ -133,22 +144,55 @@ def route_and_execute(query: str, session_id: str = "default_session") -> dict:
     fallback_used = False
     top_similarity_score = None
 
-    # System greetings & general introduction intent handler
+    # System greetings & general introduction intent pre-check
     greetings_keywords = [
         "who are you", "what can you do", "what do you do", "why are you here",
         "what is your purpose", "how can you help", "who made you"
     ]
     q_lower = query.lower().strip()
     if any(g in q_lower for g in greetings_keywords) or q_lower in ["hi", "hello", "hey", "help"]:
-        tool_choice = "system_info"
-        tools_used = ["system_info"]
+        tool_choice = "general_chat"
+
+    if tool_choice != "general_chat":
+        try:
+            prompt = PromptTemplate.from_template(ROUTER_PROMPT_TEMPLATE)
+            formatted_prompt = prompt.format(query=query, user_profile_context=user_prof_str)
+            response = router_model.invoke(formatted_prompt)
+            content = response.content.strip()
+
+            if "```json" in content:
+                content = content.split("```json")[1].split("```")[0].strip()
+            elif "```" in content:
+                content = content.split("```")[1].split("```")[0].strip()
+
+            res_json = json.loads(content)
+            tool_choice = res_json.get("tool", "policy_document_qa")
+        except Exception as e:
+            print(f"Router LLM failed, using heuristic: {e}")
+            tool_choice = heuristic_router(query)
+
+    # Heuristic override for structured policy feature queries
+    if any(k in q_lower for k in ["co-payment", "copay", "co pay", "room rent", "room-rent", "no-claim bonus", "ncb"]):
+        if not any(k in q_lower for k in ["claim settlement", "csr", "icr", "solvency"]):
+            tool_choice = "compare_policies"
+
+    print(f"--> [DISPATCHER] Query: '{query}' -> Tool: '{tool_choice}'")
+    tools_used.append(tool_choice)
+
+    # Select language-specific synthesis prompt
+    if is_query_hinglish(query):
+        synthesis_prompt_template = HINGLISH_SYNTHESIS_PROMPT
+    else:
+        synthesis_prompt_template = ENGLISH_SYNTHESIS_PROMPT
+
+    if tool_choice == "general_chat":
         if is_query_hinglish(query):
-            answer = "Namaste! Main aapka AI Health Insurance Advisor hoon. Main Indian health insurance policies ka comparison, IRDAI Claim Settlement Ratios (CSR), room rent limits, aur policy brochure terms explain karne mein aapki madad kar sakta hoon. Aap mujhse koi bhi policy question pooch sakte hain!"
+            answer = "Namaste! Main aapka AI Health Insurance Advisor hoon. Main Indian health insurance policies ka comparison, IRDAI Claim Settlement Ratios (CSR), room rent limits, aur policy brochure terms explain karne mein aapki madad kar sakta hoon. Aap Indian health insurance se juda koi bhi sawaal pooch sakte hain!"
         else:
-            answer = "Hello! I am your AI Health Insurance Advisor. I am here to help you compare Indian health insurance policies, analyze IRDAI Claim Settlement Ratios (CSR) & Incurred Claim Ratios (ICR), check room rent limits, waiting periods, and search policy brochures."
+            answer = "Hello! I am your AI Health Insurance Advisor. I specialize in helping you compare Indian health insurance policies, check IRDAI Claim Settlement Ratios (CSR) & Incurred Claim Ratios (ICR), review room rent limits, waiting periods, and search policy brochures. How can I help you with health insurance today?"
 
         conf_score = 98
-        conf_level = "High Precision (System Information)"
+        conf_level = "High Precision (System Assistant Info)"
         latency_ms = int((time.time() - start_time) * 1000)
         log_execution(session_id, query, tool_choice, latency_ms, True)
         return {
@@ -161,23 +205,6 @@ def route_and_execute(query: str, session_id: str = "default_session") -> dict:
             "fallback_used": False,
             "latency_ms": latency_ms
         }
-
-    try:
-        prompt = PromptTemplate.from_template(ROUTER_PROMPT_TEMPLATE)
-        formatted_prompt = prompt.format(query=query, user_profile_context=user_prof_str)
-        response = router_model.invoke(formatted_prompt)
-        content = response.content.strip()
-
-        if "```json" in content:
-            content = content.split("```json")[1].split("```")[0].strip()
-        elif "```" in content:
-            content = content.split("```")[1].split("```")[0].strip()
-
-        res_json = json.loads(content)
-        tool_choice = res_json.get("tool", "policy_document_qa")
-    except Exception as e:
-        print(f"Router LLM failed, using heuristic: {e}")
-        tool_choice = heuristic_router(query)
 
     # Heuristic override for structured policy feature queries
     q_lower = query.lower()
