@@ -1,0 +1,41 @@
+{
+  "as_of_year": 2024,
+  "source": "IRDAI Annual Report FY2023-24",
+  "data": {
+    "icici-lombard": {
+      "display_name": "ICICI Lombard General Insurance",
+      "CSR": "98.6%",
+      "ICR": "78.4%",
+      "solvency_ratio": "2.62",
+      "summary": "Strong claim settlement ratio (98.6%) and healthy financial solvency well above regulatory minimum of 1.5."
+    },
+    "niva-bupa": {
+      "display_name": "Niva Bupa Health Insurance",
+      "CSR": "99.1%",
+      "ICR": "64.2%",
+      "solvency_ratio": "1.72",
+      "summary": "Industry-leading claim settlement ratio (99.1%) with optimal incurred claim ratio indicating swift processing."
+    },
+    "care-health": {
+      "display_name": "Care Health Insurance",
+      "CSR": "95.2%",
+      "ICR": "68.9%",
+      "solvency_ratio": "1.81",
+      "summary": "Consistent claim settlement ratio (95.2%) with reliable financial backing."
+    },
+    "hdfc-ergo": {
+      "display_name": "HDFC ERGO General Insurance",
+      "CSR": "97.5%",
+      "ICR": "76.1%",
+      "solvency_ratio": "1.91",
+      "summary": "High settlement consistency (97.5%) and strong brand backing with good solvency."
+    },
+    "star-health": {
+      "display_name": "Star Health and Allied Insurance",
+      "CSR": "99.0%",
+      "ICR": "67.5%",
+      "solvency_ratio": "2.20",
+      "summary": "High claim settlement ratio (99.0%) as India's largest standalone health insurer."
+    }
+  }
+}

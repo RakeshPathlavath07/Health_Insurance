@@ -1,0 +1,278 @@
+{
+  "total_runs": 30,
+  "llm_success": 24,
+  "llm_fallback": 6,
+  "llm_success_percentage": 80.0,
+  "results": [
+    {
+      "run_id": 1,
+      "pass_num": 1,
+      "question_num": 1,
+      "question": "Which policies offer zero room rent capping?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: icici-lombard-max-protect-classic (Provider: ICICI-LOMBARD)"
+    },
+    {
+      "run_id": 2,
+      "pass_num": 1,
+      "question_num": 2,
+      "question": "Compare waiting periods of Niva Bupa ReAssure and Care Supreme",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: niva-bupa-reassure-2-0 (Provider: NIVA-BUPA)"
+    },
+    {
+      "run_id": 3,
+      "pass_num": 1,
+      "question_num": 3,
+      "question": "Does ICICI Lombard Max Protect have co-payment?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: icici-lombard-max-protect-classic (Provider: ICICI-LOMBARD)"
+    },
+    {
+      "run_id": 4,
+      "pass_num": 1,
+      "question_num": 4,
+      "question": "Which policies include maternity coverage?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: niva-bupa-reassure-2-0 (Provider: NIVA-BUPA)"
+    },
+    {
+      "run_id": 5,
+      "pass_num": 1,
+      "question_num": 5,
+      "question": "Compare room rent limits of Star Health Cardiac Care and HDFC Ergo Optima Secure",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: hdfc-ergo-optima-secure (Provider: HDFC-ERGO)"
+    },
+    {
+      "run_id": 6,
+      "pass_num": 1,
+      "question_num": 6,
+      "question": "What is the pre-existing disease waiting period in Tata AIG MediCare?",
+      "path_used": "llm_fallback",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: care-health-care-supreme (Provider: CARE-HEALTH)"
+    },
+    {
+      "run_id": 7,
+      "pass_num": 1,
+      "question_num": 7,
+      "question": "Which policies have no co-payment required?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: icici-lombard-max-protect-classic (Provider: ICICI-LOMBARD)"
+    },
+    {
+      "run_id": 8,
+      "pass_num": 1,
+      "question_num": 8,
+      "question": "What expenses are excluded under organ donor cover in ManipalCigna ProHealth?",
+      "path_used": "llm_fallback",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: care-health-care-supreme (Provider: CARE-HEALTH)"
+    },
+    {
+      "run_id": 9,
+      "pass_num": 1,
+      "question_num": 9,
+      "question": "Compare restoration benefits of Care Supreme and Niva Bupa ReAssure",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: niva-bupa-reassure-2-0 (Provider: NIVA-BUPA)"
+    },
+    {
+      "run_id": 10,
+      "pass_num": 1,
+      "question_num": 10,
+      "question": "Which policies offer unlimited room rent coverage?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: icici-lombard-max-protect-classic (Provider: ICICI-LOMBARD)"
+    },
+    {
+      "run_id": 11,
+      "pass_num": 1,
+      "question_num": 11,
+      "question": "What is the health checkup benefit in Bajaj Allianz Health Guard?",
+      "path_used": "llm_fallback",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: care-health-care-supreme (Provider: CARE-HEALTH)"
+    },
+    {
+      "run_id": 12,
+      "pass_num": 1,
+      "question_num": 12,
+      "question": "Which policy has zero co-payment and no room rent capping?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: icici-lombard-max-protect-classic (Provider: ICICI-LOMBARD)"
+    },
+    {
+      "run_id": 13,
+      "pass_num": 1,
+      "question_num": 13,
+      "question": "Compare waiting period of Tata AIG MediCare vs Care Supreme",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: care-health-care-supreme (Provider: CARE-HEALTH)"
+    },
+    {
+      "run_id": 14,
+      "pass_num": 1,
+      "question_num": 14,
+      "question": "Does HDFC Ergo Optima Secure cover daycare treatments?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: hdfc-ergo-optima-secure (Provider: HDFC-ERGO)"
+    },
+    {
+      "run_id": 15,
+      "pass_num": 1,
+      "question_num": 15,
+      "question": "Which policies include no-claim bonus benefits?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: icici-lombard-max-protect-classic (Provider: ICICI-LOMBARD)"
+    },
+    {
+      "run_id": 16,
+      "pass_num": 2,
+      "question_num": 1,
+      "question": "Which policies offer zero room rent capping?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: icici-lombard-max-protect-classic (Provider: ICICI-LOMBARD)"
+    },
+    {
+      "run_id": 17,
+      "pass_num": 2,
+      "question_num": 2,
+      "question": "Compare waiting periods of Niva Bupa ReAssure and Care Supreme",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: niva-bupa-reassure-2-0 (Provider: NIVA-BUPA)"
+    },
+    {
+      "run_id": 18,
+      "pass_num": 2,
+      "question_num": 3,
+      "question": "Does ICICI Lombard Max Protect have co-payment?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: icici-lombard-max-protect-classic (Provider: ICICI-LOMBARD)"
+    },
+    {
+      "run_id": 19,
+      "pass_num": 2,
+      "question_num": 4,
+      "question": "Which policies include maternity coverage?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: niva-bupa-reassure-2-0 (Provider: NIVA-BUPA)"
+    },
+    {
+      "run_id": 20,
+      "pass_num": 2,
+      "question_num": 5,
+      "question": "Compare room rent limits of Star Health Cardiac Care and HDFC Ergo Optima Secure",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: hdfc-ergo-optima-secure (Provider: HDFC-ERGO)"
+    },
+    {
+      "run_id": 21,
+      "pass_num": 2,
+      "question_num": 6,
+      "question": "What is the pre-existing disease waiting period in Tata AIG MediCare?",
+      "path_used": "llm_fallback",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: care-health-care-supreme (Provider: CARE-HEALTH)"
+    },
+    {
+      "run_id": 22,
+      "pass_num": 2,
+      "question_num": 7,
+      "question": "Which policies have no co-payment required?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: icici-lombard-max-protect-classic (Provider: ICICI-LOMBARD)"
+    },
+    {
+      "run_id": 23,
+      "pass_num": 2,
+      "question_num": 8,
+      "question": "What expenses are excluded under organ donor cover in ManipalCigna ProHealth?",
+      "path_used": "llm_fallback",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: care-health-care-supreme (Provider: CARE-HEALTH)"
+    },
+    {
+      "run_id": 24,
+      "pass_num": 2,
+      "question_num": 9,
+      "question": "Compare restoration benefits of Care Supreme and Niva Bupa ReAssure",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: niva-bupa-reassure-2-0 (Provider: NIVA-BUPA)"
+    },
+    {
+      "run_id": 25,
+      "pass_num": 2,
+      "question_num": 10,
+      "question": "Which policies offer unlimited room rent coverage?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: icici-lombard-max-protect-classic (Provider: ICICI-LOMBARD)"
+    },
+    {
+      "run_id": 26,
+      "pass_num": 2,
+      "question_num": 11,
+      "question": "What is the health checkup benefit in Bajaj Allianz Health Guard?",
+      "path_used": "llm_fallback",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: care-health-care-supreme (Provider: CARE-HEALTH)"
+    },
+    {
+      "run_id": 27,
+      "pass_num": 2,
+      "question_num": 12,
+      "question": "Which policy has zero co-payment and no room rent capping?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: icici-lombard-max-protect-classic (Provider: ICICI-LOMBARD)"
+    },
+    {
+      "run_id": 28,
+      "pass_num": 2,
+      "question_num": 13,
+      "question": "Compare waiting period of Tata AIG MediCare vs Care Supreme",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: care-health-care-supreme (Provider: CARE-HEALTH)"
+    },
+    {
+      "run_id": 29,
+      "pass_num": 2,
+      "question_num": 14,
+      "question": "Does HDFC Ergo Optima Secure cover daycare treatments?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: hdfc-ergo-optima-secure (Provider: HDFC-ERGO)"
+    },
+    {
+      "run_id": 30,
+      "pass_num": 2,
+      "question_num": 15,
+      "question": "Which policies include no-claim bonus benefits?",
+      "path_used": "llm_success",
+      "returned_data": true,
+      "output_preview": "\u2022 Policy: icici-lombard-max-protect-classic (Provider: ICICI-LOMBARD)"
+    }
+  ]
+}

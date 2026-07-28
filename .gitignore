@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+faiss_index/
+venv/
+.venv/
+.DS_Store
+backend/data/execution_logs.jsonl
+backend/eval_results.json
+compare_tool_paths.log
+scratch_test_load.py
