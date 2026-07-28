@@ -78,8 +78,9 @@ Synthesized Answer (in Hinglish):
 def is_query_hinglish(query: str) -> bool:
     """Detects whether query is written in Hinglish using exact word boundary matching."""
     hinglish_words = [
-        "kitna", "kya", "kaise", "mein", "me", "hai", "h", "batao", "bataiye", "chahiye",
-        "wale", "wala", "wali", "kaunsa", "kaunsi", "de", "do", "karo", "kab", "kyun", "hoga"
+        "kitna", "kya", "kaise", "mein", "hai", "batao", "bataiye", "chahiye",
+        "wale", "wala", "wali", "kaunsa", "kaunsi", "karo", "kab", "kyun", "hoga",
+        "lagta", "niche", "varsh", "samajh"
     ]
     query_words = re.findall(r'\b\w+\b', query.lower())
     return any(w in query_words for w in hinglish_words)
@@ -131,6 +132,35 @@ def route_and_execute(query: str, session_id: str = "default_session") -> dict:
     tools_used = []
     fallback_used = False
     top_similarity_score = None
+
+    # System greetings & general introduction intent handler
+    greetings_keywords = [
+        "who are you", "what can you do", "what do you do", "why are you here",
+        "what is your purpose", "how can you help", "who made you"
+    ]
+    q_lower = query.lower().strip()
+    if any(g in q_lower for g in greetings_keywords) or q_lower in ["hi", "hello", "hey", "help"]:
+        tool_choice = "system_info"
+        tools_used = ["system_info"]
+        if is_query_hinglish(query):
+            answer = "Namaste! Main aapka AI Health Insurance Advisor hoon. Main Indian health insurance policies ka comparison, IRDAI Claim Settlement Ratios (CSR), room rent limits, aur policy brochure terms explain karne mein aapki madad kar sakta hoon. Aap mujhse koi bhi policy question pooch sakte hain!"
+        else:
+            answer = "Hello! I am your AI Health Insurance Advisor. I am here to help you compare Indian health insurance policies, analyze IRDAI Claim Settlement Ratios (CSR) & Incurred Claim Ratios (ICR), check room rent limits, waiting periods, and search policy brochures."
+
+        conf_score = 98
+        conf_level = "High Precision (System Information)"
+        latency_ms = int((time.time() - start_time) * 1000)
+        log_execution(session_id, query, tool_choice, latency_ms, True)
+        return {
+            "query": query,
+            "tool": tool_choice,
+            "tools_used": tools_used,
+            "answer": answer,
+            "confidence_score": conf_score,
+            "confidence_level": conf_level,
+            "fallback_used": False,
+            "latency_ms": latency_ms
+        }
 
     try:
         prompt = PromptTemplate.from_template(ROUTER_PROMPT_TEMPLATE)
