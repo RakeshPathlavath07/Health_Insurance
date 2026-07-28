@@ -520,7 +520,7 @@ if st.session_state.messages and st.session_state.messages[-1]["role"] == "user"
             response = requests.post(
                 f"{BACKEND_URL}/chat",
                 json={"session_id": st.session_state.session_id, "query": last_user_query},
-                timeout=120
+                timeout=15
             )
             if response.status_code == 200:
                 data = response.json()
@@ -529,9 +529,20 @@ if st.session_state.messages and st.session_state.messages[-1]["role"] == "user"
                 confidence_score = data.get("confidence_score", 95)
                 confidence_level = data.get("confidence_level", "High Precision")
             else:
-                answer = f"Error from server (Status Code: {response.status_code})"
-        except Exception as e:
-            answer = f"Could not connect to backend server: {e}"
+                raise Exception(f"Server returned HTTP {response.status_code}")
+        except Exception:
+            # Standalone Streamlit Cloud Fallback: Run multi-agent dispatcher directly in Python
+            try:
+                from backend.app.dispatcher import route_and_execute
+                from backend.app.guardrails import validate_response
+                res_dict = route_and_execute(last_user_query, session_id=st.session_state.session_id)
+                raw_answer = res_dict.get("answer", "")
+                tools_used = res_dict.get("tools_used", [])
+                confidence_score = res_dict.get("confidence_score", 95)
+                confidence_level = res_dict.get("confidence_level", "High Precision")
+                answer = validate_response(last_user_query, raw_answer)
+            except Exception as direct_e:
+                answer = f"Error processing query: {direct_e}"
 
     # Voice Audio Synthesis
     audio_data = None
