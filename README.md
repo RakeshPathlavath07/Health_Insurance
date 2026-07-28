@@ -175,25 +175,27 @@ MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/
 python3 backend/app/ingestion/scrape_policy_data.py
 ```
 
-### 4. Run Servers Locally
+### 4. Run Application Locally
 
-**Start FastAPI Backend**:
+**Start Standalone Streamlit App (Primary)**:
+```bash
+python3 -m streamlit run frontend/streamlit_app.py
+```
+> 💡 **Note**: Streamlit runs standalone out of the box—it executes the multi-agent system directly in-process, so starting a separate backend server is **not required**.
+
+**(Optional) Start FastAPI REST API Server**:
 ```bash
 python3 -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
 ```
-
-**Start Streamlit Frontend**:
-```bash
-python3 -m streamlit run frontend/streamlit_app.py --server.port 8501
-```
+> 💡 **Note**: Only required if testing FastAPI REST API endpoints directly via `curl` or Postman.
 
 ---
 
 ## 🧪 Testing & Evaluation
 
-### Run Benchmark Suite (15 Test Cases)
+### Run Benchmark Suite (23 Test Cases)
 ```bash
-python3 -m backend.eval_suite
+python3 backend/eval_suite.py
 ```
 
 ### Run 30-Run Compare Tool Benchmark
