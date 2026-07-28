@@ -1,5 +1,6 @@
 fastapi
 uvicorn
+gunicorn
 langchain
 langchain-groq
 langchain-huggingface
@@ -11,5 +12,7 @@ rapidfuzz
 pdfplumber
 python-dotenv
 pydantic
-jupyter
-notebook
+requests
+gtts
+streamlit
+streamlit-mic-recorder
