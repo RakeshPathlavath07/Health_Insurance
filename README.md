@@ -15,28 +15,52 @@ A multi-agent GenAI platform built for Indian health insurance policy analysis, 
 ## 🏛️ System Architecture
 
 ```text
- ┌──────────────────────────────────────────────────────────────────────────┐
- │                  Streamlit Cloud Web UI (Port 8501)                      │
- │   - Centered Bottom Dock (12% Mic Icon + 88% Input Box)                  │
- │   - Client-Side JS Recording State Watcher & Pulsing Recording Banner   │
- │   - Instant Two-Stage Chat Streamer & Text Fill Visibility Fix          │
- │   - Voice STT (Groq Whisper-large-v3) & TTS (gTTS Audio Response)        │
- └────────────────────────────────────┬─────────────────────────────────────┘
-                                      │ Python API / Standalone
- ┌────────────────────────────────────▼─────────────────────────────────────┐
- │                      Master ReAct Dispatcher Agent                       │
- │  - Intent Classification Router (Groq Llama-3.1-8b-instant)              │
- │  - 4 Tool Classification: compare, risk, policy_document_qa, general_chat│
- │  - Unambiguous Romanized Hindi Keyword Detection (English vs Hinglish)   │
- │  - Dynamic Distance-Based & Static Confidence Scoring (0% - 98%)         │
- │  - Structured JSON Line Execution Logging (execution_logs.jsonl)         │
+ ┌──────────────────────────────────────────────────────────────────────────────┐
+ │                      Streamlit Community Cloud Application                    │
+ │               URL: https://healthinsurancesystem.streamlit.app/              │
+ │                                                                              │
+ │   - Centered Bottom Dock (12% Mic Icon + 88% Input Box)                      │
+ │   - Client-Side JS Recording Watcher & Pulsing Recording Banner              │
+ │   - Instant Two-Stage Chat Streamer & Text Fill Visibility Fix              │
+ │   - Voice STT (Groq Whisper-large-v3) & TTS (gTTS Audio Synthesis)           │
+ └──────────────────────────────────────┬───────────────────────────────────────┘
+                                        │
+                         Primary Route: │ HTTP POST /chat (if BACKEND_URL configured)
+                         Fallback Route:│ Direct In-Process Python Execution (Standalone Mode)
+                                        │
+ ┌──────────────────────────────────────▼───────────────────────────────────────┐
+ │                      Master ReAct Dispatcher Agent                           │
+ │  - Intent Classification Router (Groq Llama-3.1-8b-instant)                  │
+ │  - 4 Tool Routing: compare_policies, insurer_financial_risk,                 │
+ │    policy_document_qa, general_chat                                          │
+ │  - Unambiguous Romanized Hindi Keyword Detection (English vs Hinglish)       │
+ │  - Dynamic Distance-Based & Static Confidence Scoring (0% - 98%)             │
+ └──────┬─────────────────────┬─────────────────────┬─────────────────────┬─────┘
+        │                     │                     │                     │
+ ┌──────▼──────┐       ┌──────▼──────┐       ┌──────▼──────┐       ┌──────▼──────┐
+ │Compare Tool │       │  RAG Tool   │       │  Risk Tool  │       │General Chat │
+ │(PyMongo Code│       │(FAISS Vector│       │(IRDAI Risk  │       │(Out-of-Scope│
+ │ Generation) │       │  Search)    │       │  Lookup)    │       │ Assistant)  │
+ └──────┬──────┘       └──────┬──────┘       └──────┬──────┘       └─────────────┘
+        │                     │                     │
+ ┌──────▼─────────────────────▼─────────────────────▼──────────────────────────┐
+ │                           Data & Persistence Layer                           │
+ │  - MongoDB Atlas Cloud: insurance_db.health_insurance (9 Feature Schema)     │
+ │  - MongoDB Atlas Cloud: insurance_db.user_profile (Long-Term Memory)         │
+ │  - Short-Term Memory: ConversationSummaryBufferMemory (Session History)      │
+ └──────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## 🌐 Live Demo & Deployment Endpoints
 
-- **Frontend Web Application (Streamlit)**: [http://localhost:8501](http://localhost:8501) *(Deployed on Streamlit Community Cloud)*
-- **Backend REST API (FastAPI)**: [http://127.0.0.1:8000](http://127.0.0.1:8000) *(Deployed on Render Web Service)*
-- **API Health Check**: `curl http://127.0.0.1:8000/health` ➔ `{"status": "healthy"}`
-
-> **Note on Render Free Tier**: Render web services automatically sleep after ~15 minutes of inactivity. The first request after idle will experience a ~30–60 second cold-start delay while the instance spins up.
+- **Live Streamlit Application**: [https://healthinsurancesystem.streamlit.app/](https://healthinsurancesystem.streamlit.app/) *(Hosted on Streamlit Community Cloud)*
+- **Local Development URL**: [http://localhost:8501](http://localhost:8501)
+- **Architecture & Dual-Execution Model**:
+  - The Streamlit application first attempts an HTTP POST request to `BACKEND_URL/chat`.
+  - On Streamlit Community Cloud (where no separate external backend server is running), `requests.post()` fails gracefully and the app seamlessly executes `dispatcher.route_and_execute()` directly in-process via Python import.
+  - This dual-mode design guarantees high availability, zero cold starts, and seamless standalone execution on free-tier hosting platforms.
 
 ---
 
@@ -44,8 +68,8 @@ A multi-agent GenAI platform built for Indian health insurance policy analysis, 
 
 | Benchmark Metric | Result | Evaluation Method & Description |
 | :--- | :---: | :--- |
-| **Compare-Tool LLM Primary Path Success** | **86.67%** *(26 / 30 runs)* | Fresh baseline benchmark across 15 comparison questions × 2 repeats. Evaluates how often `deep_model` (`llama-3.3-70b-versatile`) safely generates valid PyMongo queries without hitting the deterministic fallback (13.33%). |
-| **Automated Evaluation Suite Pass Rate** | **100.0%** *(15 / 15 cases)* | *Note: Validates tool-routing correctness & key entity presence, not full natural language semantic answer accuracy.* |
+| **Automated Evaluation Suite Pass Rate** | **100.0%** *(23 / 23 cases)* | Evaluates tool-routing accuracy, language style detection, out-of-scope handling (`general_chat`), and key entity presence across 23 standardized test cases. |
+| **Compare-Tool LLM Primary Path Success** | **86.67%** *(26 / 30 runs)* | Evaluates how often `deep_model` (`llama-3.3-70b-versatile`) safely generates valid PyMongo queries without hitting deterministic fallback (13.33%). |
 | **Dynamic RAG Confidence Scoring** | **0–100% Dynamic** | Normalizes top retrieved chunk's FAISS L2 Euclidean distance $d$ via: $S = \max(0, \min(100, \text{round}((1.0 - d / 2.0) \times 100)))$. |
 
 ---
