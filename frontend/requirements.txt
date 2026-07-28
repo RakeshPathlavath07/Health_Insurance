@@ -1,3 +1,16 @@
 streamlit
 requests
 python-dotenv
+gTTS
+streamlit-mic-recorder
+langchain
+langchain-groq
+langchain-huggingface
+sentence-transformers
+langchain-community
+pymongo
+faiss-cpu
+rapidfuzz
+pdfplumber
+pydantic
+tavily-python

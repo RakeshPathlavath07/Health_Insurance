@@ -13,6 +13,7 @@ pdfplumber
 python-dotenv
 pydantic
 requests
-gtts
+gTTS
 streamlit
 streamlit-mic-recorder
+tavily-python
