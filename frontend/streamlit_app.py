@@ -416,9 +416,12 @@ for msg in st.session_state.messages:
             base_tools = [t for t in tools_list if t != "web_search_fallback"]
             if base_tools:
                 tools_str = ", ".join(base_tools)
-                conf_score = msg.get("confidence_score", 95)
-                conf_level = msg.get("confidence_level", "High Precision")
-                st.markdown(f'<div class="tool-badge">🛠️ Tool Called: <b>{tools_str}</b></div><div class="confidence-badge">🎯 Confidence Score: <b>{conf_score}%</b> ({conf_level})</div>', unsafe_allow_html=True)
+                if "general_chat" in base_tools:
+                    st.markdown(f'<div class="tool-badge">💬 Tool Called: <b>{tools_str}</b></div>', unsafe_allow_html=True)
+                else:
+                    conf_score = msg.get("confidence_score", 95)
+                    conf_level = msg.get("confidence_level", "High Precision")
+                    st.markdown(f'<div class="tool-badge">🛠️ Tool Called: <b>{tools_str}</b></div><div class="confidence-badge">🎯 Confidence Score: <b>{conf_score}%</b> ({conf_level})</div>', unsafe_allow_html=True)
 
         # Audio voice playback for assistant responses
         if msg["role"] == "assistant" and msg.get("audio_bytes"):
