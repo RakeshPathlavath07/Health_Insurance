@@ -3,33 +3,35 @@
 ## 1. System Overview & Architecture
 The **Health Insurance Recommendation Agent** is a multi-agent GenAI platform built for Indian health insurance analysis. It combines structured MongoDB querying, IRDAI risk data lookups, FAISS vector retrieval with live PDF search fallback, and hybrid conversation memory.
 
+- **Live Application URL**: [https://healthinsurancesystem.streamlit.app/](https://healthinsurancesystem.streamlit.app/)
+
 ### Architecture Tech Stack:
-- **Frontend UI**: Streamlit (Session state, chat history, live tool badges)
-- **Backend API**: FastAPI (Asynchronous endpoints, CORS, Pydantic validation)
-- **Master Orchestrator**: LangChain ReAct Agent backed by Groq (`llama-3.3-70b-versatile`)
+- **Frontend UI**: Streamlit Cloud (`https://healthinsurancesystem.streamlit.app/`)
+- **Backend API**: FastAPI REST endpoints + Python direct dispatcher execution
+- **Master Orchestrator**: LangChain ReAct Dispatcher Agent backed by Groq (`llama-3.1-8b-instant` / `llama-3.3-70b-versatile`)
 - **Structured Database**: MongoDB Atlas Cloud (`insurance_db.health_insurance`)
 - **Unstructured RAG**: FAISS Vector Store + HuggingFace `sentence-transformers/all-MiniLM-L6-v2`
 - **Web Search**: Tavily Search API
-- **Evaluation**: Benchmark test suite (`backend/eval_suite.py`)
+- **Evaluation**: 23-Case Benchmark Test Suite (`backend/eval_suite.py`)
 
 ---
 
 ## 2. Detailed Component Specifications
 
 ### 1. Streamlit Frontend (`frontend/streamlit_app.py`)
-- **Input**: User text query + Session ID in `st.session_state`.
-- **Processing**: Calls `POST http://localhost:8000/chat`. Renders response markdown and displays tool badge.
-- **Output Format**: Interactive Chat UI with tool badges (`🛠️ Tool Called: compare_policies`).
+- **Input**: User text or voice query (Groq Whisper AI STT) + Session ID in `st.session_state`.
+- **Processing**: Invokes `route_and_execute()` in Python or calls REST endpoint. Renders two-stage response markdown with tool badges and gTTS audio synthesis.
+- **Output Format**: Interactive Chat UI with tool badges (`🛠️ Tool Called: compare_policies`, `💬 Tool Called: general_chat`).
 
 ### 2. FastAPI REST API (`backend/app/main.py`)
 - **Input**: `ChatRequest(session_id: str, query: str)` JSON payload.
-- **Processing**: Validates input, invokes Master Dispatcher, applies Guardrails validation.
-- **Output Format**: JSON `ChatResponse(session_id, query, answer, tools_used)`.
+- **Processing**: Validates input, invokes Master Dispatcher `route_and_execute()`, applies Guardrails validation.
+- **Output Format**: JSON `ChatResponse(session_id, query, answer, tools_used, confidence_score, confidence_level)`.
 
 ### 3. ReAct Master Dispatcher (`backend/app/dispatcher.py`)
-- **Input**: `session_id: str`, `query: str`.
-- **Processing**: Loads memory, constructs ReAct prompt with 3 tools (`compare_policies`, `insurer_financial_risk`, `policy_document_qa`). Executes agent loop and captures tool names.
-- **Output Format**: Dict `{"answer": str, "tools_used": list[str]}`.
+- **Input**: `query: str`, `session_id: str`.
+- **Processing**: Loads memory, constructs ReAct prompt with 4 tools (`compare_policies`, `insurer_financial_risk`, `policy_document_qa`, `general_chat`). Executes agent loop and captures tool names.
+- **Output Format**: Dict `{"answer": str, "tools_used": list[str], "confidence_score": int}`.
 
 ### 4. Text-to-MongoDB Compare Tool (`backend/app/tools/compare_tool.py`)
 - **Input**: Natural language comparison query string.

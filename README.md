@@ -2,56 +2,34 @@
 
 A multi-agent GenAI platform built for Indian health insurance policy analysis, feature comparison, IRDAI financial risk lookups, and natural language Q&A with hybrid memory and voice interaction.
 
+[![Live Application](https://img.shields.io/badge/Streamlit%20Cloud-Live%20App-ff4b4b?style=for-the-badge&logo=streamlit)](https://healthinsurancesystem.streamlit.app/)
+
+---
+
+## 🚀 Live Application URL
+
+- **Streamlit Web Application**: [https://healthinsurancesystem.streamlit.app/](https://healthinsurancesystem.streamlit.app/)
+
 ---
 
 ## 🏛️ System Architecture
 
 ```text
  ┌──────────────────────────────────────────────────────────────────────────┐
- │                        Streamlit Chat UI (Port 8501)                     │
+ │                  Streamlit Cloud Web UI (Port 8501)                      │
  │   - Centered Bottom Dock (12% Mic Icon + 88% Input Box)                  │
  │   - Client-Side JS Recording State Watcher & Pulsing Recording Banner   │
  │   - Instant Two-Stage Chat Streamer & Text Fill Visibility Fix          │
  │   - Voice STT (Groq Whisper-large-v3) & TTS (gTTS Audio Response)        │
  └────────────────────────────────────┬─────────────────────────────────────┘
-                                      │ HTTP REST API
- ┌────────────────────────────────────▼─────────────────────────────────────┐
- │                         FastAPI Backend (Port 8000)                      │
- │                     POST /chat  |  GET /health                           │
- └────────────────────────────────────┬─────────────────────────────────────┘
-                                      │
+                                      │ Python API / Standalone
  ┌────────────────────────────────────▼─────────────────────────────────────┐
  │                      Master ReAct Dispatcher Agent                       │
  │  - Intent Classification Router (Groq Llama-3.1-8b-instant)              │
- │  - Programmatic Language Detection (English vs Hinglish)                 │
- │  - Dynamic & Static Confidence Scoring (85% - 98%)                        │
+ │  - 4 Tool Classification: compare, risk, policy_document_qa, general_chat│
+ │  - Unambiguous Romanized Hindi Keyword Detection (English vs Hinglish)   │
+ │  - Dynamic Distance-Based & Static Confidence Scoring (0% - 98%)         │
  │  - Structured JSON Line Execution Logging (execution_logs.jsonl)         │
- └───────┬────────────────────────────┼────────────────────────────┬────────┘
-         │                            │                            │
- ┌───────▼─────────────┐    ┌─────────▼─────────────┐    ┌─────────▼────────────┐
- │    Compare Tool     │    │       RAG Tool        │    │      Risk Tool       │
- │ (Text-to-MongoDB)   │    │ (FAISS Vector Search) │    │ (IRDAI Risk Lookup)  │
- │  - Primary Path:    │    │  - HuggingFace        │    │  - Claim Settlement  │
- │    LLM PyMongo Code │    │    all-MiniLM-L6-v2  │    │    Ratio (CSR)       │
- │    Generation       │    │  - Live Tavily Web    │    │  - Incurred Claim    │
- │    (Llama-3.3-70b)  │    │    Search Fallback    │    │    Ratio (ICR)       │
- │  - Guardrails &     │    │  - Brand Validation   │    │  - Solvency Ratio    │
- │    Safety Filter    │    │  - Dynamic Distance   │    │  - Versioned IRDAI   │
- │  - Fallback:        │    │    Confidence Score   │    │    FY2024 Report     │
- │    Deterministic    │    │                       │    │                      │
- │    Python Engine    │    │                       │    │                      │
- └───────┬─────────────┘    └─────────┬─────────────┘    └─────────┬────────────┘
-         │                            │                            │
- ┌───────▼────────────────────────────▼────────────────────────────▼────────────┐
- │                           Data & Persistence Layer                           │
- │  - MongoDB Atlas Cloud: insurance_db.health_insurance (9 Feature Schema)     │
- │  - MongoDB Atlas Cloud: insurance_db.user_profile (Long-Term Memory)        │
- │  - Short-Term Memory: ConversationSummaryBufferMemory (Session History)     │
- └──────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
 ## 🌐 Live Demo & Deployment Endpoints
 
 - **Frontend Web Application (Streamlit)**: [http://localhost:8501](http://localhost:8501) *(Deployed on Streamlit Community Cloud)*
