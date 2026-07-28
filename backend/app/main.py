@@ -56,7 +56,7 @@ def chat_endpoint(request: ChatRequest):
         raise HTTPException(status_code=400, detail="Query string cannot be empty.")
 
     try:
-        res_dict = handle_query(request.session_id, request.query.strip())
+        res_dict = route_and_execute(request.query.strip(), session_id=request.session_id)
         raw_answer = res_dict.get("answer", "")
         tools_used = res_dict.get("tools_used", [])
         confidence_score = res_dict.get("confidence_score", 95)
