@@ -148,8 +148,8 @@ The `insurance_db.health_insurance` collection contains policy feature documents
 ### 1. Installation
 ```bash
 # Clone repository
-git clone https://github.com/RakeshPathlavath07/personal_dashboard.git
-cd personal_dashboard
+git clone https://github.com/RakeshPathlavath07/Health_Insurance.git
+cd Health_Insurance
 
 # Install dependencies
 pip install -r requirements.txt
