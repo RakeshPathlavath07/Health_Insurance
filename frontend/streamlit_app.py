@@ -5,7 +5,14 @@ dynamic randomized example queries, Unified Capsule Dock, Instant Two-Stage Chat
 (User question renders IMMEDIATELY before backend query begins), Voice Output (TTS via gTTS),
 transparent audio status indicators, session persistence, and web fallback alerts.
 """
+import sys
 import os
+
+# Add root project directory to sys.path so 'backend' imports work seamlessly on Streamlit Cloud
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 import re
 import uuid
 import random
