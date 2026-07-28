@@ -177,17 +177,10 @@ python3 backend/app/ingestion/scrape_policy_data.py
 
 ### 4. Run Application Locally
 
-**Start Standalone Streamlit App (Primary)**:
 ```bash
 python3 -m streamlit run frontend/streamlit_app.py
 ```
-> 💡 **Note**: Streamlit runs standalone out of the box—it executes the multi-agent system directly in-process, so starting a separate backend server is **not required**.
-
-**(Optional) Start FastAPI REST API Server**:
-```bash
-python3 -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
-```
-> 💡 **Note**: Only required if testing FastAPI REST API endpoints directly via `curl` or Postman.
+> 💡 **Note**: Streamlit runs standalone out of the box—it executes the multi-agent system directly in-process.
 
 ---
 
