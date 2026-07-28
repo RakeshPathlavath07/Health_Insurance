@@ -74,13 +74,17 @@ A multi-agent GenAI platform built for Indian health insurance policy analysis, 
 
 ---
 
-## 📸 Screenshots
+## 📸 Screenshots & Hands-Free Voice Interaction
 
-### 1. Zero Co-Payment Feature Comparison & Centered Dock Interface
-![Zero Co-Payment Query](docs/screenshots/streamlit_chat_dock.png)
+> 🎙️ **Voice & Audio Enabled**: The system supports hands-free voice input recording (via Groq Whisper `whisper-large-v3` AI Speech-to-Text) and automatically synthesizes spoken audio responses with an integrated HTML5 voice player!
 
-### 2. Hinglish Waiting Period Q&A & Live Web Ingestion Fallback
-![Hinglish Q&A and Web Search Fallback](docs/screenshots/voice_input_recording.png)
+### 1. Zero Co-Payment Policy Comparison & Hands-Free Voice Player
+![Zero Co-Payment Policy Comparison with Voice Player & Centered Mic Dock](docs/screenshots/streamlit_chat_dock.png)
+*Features: Centered input capsule with 12% Microphone Icon (`🎙️`), MongoDB Atlas policy comparison (`compare_policies` tool with 96% confidence score), and automatic synthesized voice audio response player (`🔊 Voice audio ready for playback`).*
+
+### 2. Voice Query Processing, Hinglish Q&A & Live Web Brochure Fallback
+![Hinglish Voice Q&A, Web Search Fallback & Interactive Audio Playback](docs/screenshots/voice_input_recording.png)
+*Features: Hands-free Romanized Hindi voice query processing (`Nivabupa re-assure policy me waiting period kitna h?`), live web search brochure ingestion fallback, FAISS document retrieval (`policy_document_qa` tool with 88% confidence), and interactive 28-second synthesized voice audio playback.*
 
 ---
 
