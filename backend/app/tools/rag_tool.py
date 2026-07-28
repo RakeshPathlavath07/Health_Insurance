@@ -12,7 +12,6 @@ os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 from dotenv import load_dotenv
-from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
 from backend.app.tools.fuzzy_matcher import match_provider, match_policy
 from backend.app.ingestion.pdf_ingest import get_embeddings, ingest_pdf, FAISS_INDEX_DIR
@@ -89,6 +88,7 @@ def get_vector_db():
         return None
 
     if _CACHED_VECTOR_DB is None:
+        from langchain_community.vectorstores import FAISS
         if _CACHED_EMBEDDINGS is None:
             _CACHED_EMBEDDINGS = get_embeddings()
         _CACHED_VECTOR_DB = FAISS.load_local(

@@ -11,8 +11,6 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import requests
 import pdfplumber
-from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 
@@ -21,7 +19,8 @@ FAISS_INDEX_DIR = os.path.abspath(
 )
 
 def get_embeddings():
-    """Initializes local HuggingFace embeddings model (all-MiniLM-L6-v2)."""
+    """Initializes local HuggingFace embeddings model lazily."""
+    from langchain_huggingface import HuggingFaceEmbeddings
     return HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2",
         model_kwargs={"device": "cpu"}
@@ -67,6 +66,7 @@ def ingest_pdf(pdf_path_or_url: str, provider: str, policy_name: str) -> bool:
     Ingests PDF document into persistent FAISS vector store.
     Loads existing FAISS index if present and appends new chunks (does not overwrite).
     """
+    from langchain_community.vectorstores import FAISS
     raw_text = extract_text_from_pdf(pdf_path_or_url)
     if not raw_text:
         print("No text extracted from PDF, aborting vector ingestion.")
