@@ -398,7 +398,16 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
         if msg.get("tools_used"):
-            tools_list = msg["tools_used"]
+            raw_tools = msg["tools_used"]
+            if isinstance(raw_tools, str):
+                tools_list = [raw_tools]
+            elif isinstance(raw_tools, dict):
+                tools_list = list(raw_tools.keys())
+            elif isinstance(raw_tools, (list, tuple, set)):
+                tools_list = [str(t) for t in raw_tools]
+            else:
+                tools_list = [str(raw_tools)]
+
             if "web_search_fallback" in tools_list:
                 st.markdown(
                     '<div class="fallback-badge">🌐 <b>Live Web Ingestion Fallback</b>: Policy missing in database — fetched & ingested live brochure from web search!</div>',
