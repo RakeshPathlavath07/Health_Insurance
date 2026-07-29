@@ -1,12 +1,47 @@
 """
 Session Memory Manager — Fast ConversationBufferWindowMemory
-Preserves the last k conversation turns in memory without LLM overhead.
+Preserves the last k conversation turns in memory with zero import errors.
 """
 import os
 from dotenv import load_dotenv
-from langchain.memory import ConversationBufferWindowMemory
 
 load_dotenv()
+
+try:
+    from langchain.memory import ConversationBufferWindowMemory
+except (ImportError, ModuleNotFoundError):
+    try:
+        from langchain_community.memory import ConversationBufferWindowMemory
+    except (ImportError, ModuleNotFoundError):
+        class SimpleMessage:
+            def __init__(self, type: str, content: str):
+                self.type = type
+                self.content = content
+
+        class ConversationBufferWindowMemory:
+            """Fallback zero-dependency sliding window memory implementation."""
+            def __init__(self, k: int = 6, memory_key: str = "chat_history", return_messages: bool = True):
+                self.k = k
+                self.memory_key = memory_key
+                self.return_messages = return_messages
+                self.messages = []
+
+            def save_context(self, inputs: dict, outputs: dict):
+                user_input = inputs.get("input") or inputs.get("query") or ""
+                ai_output = outputs.get("output") or outputs.get("answer") or ""
+                if user_input:
+                    self.messages.append(SimpleMessage("human", str(user_input)))
+                if ai_output:
+                    self.messages.append(SimpleMessage("ai", str(ai_output)))
+                max_msgs = self.k * 2
+                if len(self.messages) > max_msgs:
+                    self.messages = self.messages[-max_msgs:]
+
+            def load_memory_variables(self, inputs: dict = None) -> dict:
+                return {self.memory_key: self.messages}
+
+            def clear(self):
+                self.messages = []
 
 # In-memory session registry: session_id -> ConversationBufferWindowMemory
 _SESSION_MEMORIES = {}
