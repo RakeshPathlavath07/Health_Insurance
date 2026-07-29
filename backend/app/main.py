@@ -13,7 +13,7 @@ import traceback
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from backend.app.dispatcher import handle_query
+from backend.app.dispatcher import route_and_execute, handle_query
 from backend.app.guardrails import validate_response
 
 app = FastAPI(
@@ -62,7 +62,7 @@ def chat_endpoint(request: ChatRequest):
         confidence_score = res_dict.get("confidence_score", 95)
         confidence_level = res_dict.get("confidence_level", "High Precision")
 
-        validated_answer = validate_response(request.query, raw_answer)
+        validated_answer = validate_response(request.query, raw_answer, tool_data=res_dict.get("tool_data", ""))
 
         return ChatResponse(
             session_id=request.session_id,

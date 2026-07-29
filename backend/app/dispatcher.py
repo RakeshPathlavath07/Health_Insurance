@@ -3,7 +3,7 @@ Agent Dispatcher — Query Router & Master Orchestrator
 Uses LLM-based Intent Classification with fast heuristic fallbacks to route user queries
 to appropriate tools (run_compare_tool, policy_document_qa, get_insurer_risk).
 Computes dynamic AI evaluation scores (0-100%), enforces strict prompt language matching (English vs Hinglish),
-integrates long-term MongoDB user_profile memory, and writes structured JSON line logs.
+integrates long-term MongoDB user_profile memory, short-term session memory, and writes structured JSON line logs.
 """
 import os
 import json
@@ -17,6 +17,7 @@ from backend.app.tools.compare_tool import run_compare_tool
 from backend.app.tools.risk_tool import get_insurer_risk
 from backend.app.logger import log_execution
 from backend.app.user_profile import update_user_profile, format_profile_for_context
+from backend.app.memory import get_memory
 
 load_dotenv()
 groq_key = os.getenv("GROQ_API_KEY")
@@ -51,6 +52,9 @@ Synthesize this data into a clear, professional, well-formatted response to answ
 
 STRICT RULE: Write 100% FULLY IN ENGLISH. Do NOT use any Hindi or Hinglish words under any circumstances.
 
+Previous Conversation History:
+{chat_history}
+
 {user_profile_context}
 Structured Policy Data:
 {db_data}
@@ -66,6 +70,9 @@ Below is structured policy / financial risk data retrieved from the system.
 Synthesize this data into a clear, helpful response to answer the user's question directly.
 
 STRICT RULE: Write in natural, easy-to-understand HINGLISH (Hindi written in Roman script) matching the user's prompt style.
+
+Previous Conversation History:
+{chat_history}
 
 {user_profile_context}
 Structured Policy Data:
@@ -131,9 +138,21 @@ def compute_confidence_score(tool: str, answer: str, fallback_used: bool = False
 
 def route_and_execute(query: str, session_id: str = "default_session") -> dict:
     """
-    Routes user query to appropriate tool, executes tool, updates long-term profile, logs execution, and returns result dict.
+    Routes user query to appropriate tool, executes tool, loads/updates conversation memory & user profile, logs execution, and returns result dict.
     """
     start_time = time.time()
+
+    # Load session conversation memory
+    mem = get_memory(session_id)
+    history_msgs = mem.load_memory_variables({}).get("chat_history", [])
+    if not history_msgs:
+        chat_history_str = "None"
+    else:
+        lines = []
+        for m in history_msgs:
+            role = "User" if m.type in ["human", "user"] else "Assistant"
+            lines.append(f"{role}: {m.content}")
+        chat_history_str = "\n".join(lines)
 
     # Opportunistically update and format long-term user profile from MongoDB Atlas
     update_user_profile(session_id, query)
@@ -143,6 +162,7 @@ def route_and_execute(query: str, session_id: str = "default_session") -> dict:
     tools_used = []
     fallback_used = False
     top_similarity_score = None
+    tool_data = ""
 
     # System greetings & general introduction intent pre-check
     greetings_keywords = [
@@ -195,46 +215,40 @@ def route_and_execute(query: str, session_id: str = "default_session") -> dict:
         conf_level = "High Precision (System Assistant Info)"
         latency_ms = int((time.time() - start_time) * 1000)
         log_execution(session_id, query, tool_choice, latency_ms, True)
+        
+        # Save context to conversation memory
+        mem.save_context({"input": query}, {"output": answer})
+
         return {
+            "session_id": session_id,
             "query": query,
             "tool": tool_choice,
             "tools_used": tools_used,
             "answer": answer,
+            "tool_data": "",
             "confidence_score": conf_score,
             "confidence_level": conf_level,
             "fallback_used": False,
             "latency_ms": latency_ms
         }
 
-    # Heuristic override for structured policy feature queries
-    q_lower = query.lower()
-    if any(k in q_lower for k in ["co-payment", "copay", "co pay", "room rent", "room-rent", "no-claim bonus", "ncb"]):
-        if not any(k in q_lower for k in ["claim settlement", "csr", "icr", "solvency"]):
-            tool_choice = "compare_policies"
-
-    print(f"--> [DISPATCHER] Query: '{query}' -> Tool: '{tool_choice}'")
-    tools_used.append(tool_choice)
-
-    # Select language-specific synthesis prompt
-    if is_query_hinglish(query):
-        synthesis_prompt_template = HINGLISH_SYNTHESIS_PROMPT
-    else:
-        synthesis_prompt_template = ENGLISH_SYNTHESIS_PROMPT
-
     if tool_choice == "insurer_financial_risk":
         raw_result = get_insurer_risk(query)
+        tool_data = raw_result
         prompt = PromptTemplate.from_template(synthesis_prompt_template)
-        formatted_prompt = prompt.format(db_data=raw_result, query=query, user_profile_context=user_prof_str)
+        formatted_prompt = prompt.format(db_data=raw_result, query=query, user_profile_context=user_prof_str, chat_history=chat_history_str)
         answer = router_model.invoke(formatted_prompt).content.strip()
 
     elif tool_choice == "compare_policies":
         raw_result = run_compare_tool(query)
+        tool_data = raw_result
         prompt = PromptTemplate.from_template(synthesis_prompt_template)
-        formatted_prompt = prompt.format(db_data=raw_result, query=query, user_profile_context=user_prof_str)
+        formatted_prompt = prompt.format(db_data=raw_result, query=query, user_profile_context=user_prof_str, chat_history=chat_history_str)
         answer = router_model.invoke(formatted_prompt).content.strip()
 
     else:
         answer, fallback_used, top_similarity_score = run_rag_tool(query)
+        tool_data = answer
         if fallback_used:
             tools_used.append("web_search_fallback")
 
@@ -246,6 +260,9 @@ def route_and_execute(query: str, session_id: str = "default_session") -> dict:
     )
 
     elapsed_ms = (time.time() - start_time) * 1000.0
+
+    # Save turn exchange to conversation memory
+    mem.save_context({"input": query}, {"output": answer})
 
     # Write structured JSON line log entry
     log_execution(
@@ -262,6 +279,7 @@ def route_and_execute(query: str, session_id: str = "default_session") -> dict:
         "query": query,
         "tool": tool_choice,
         "answer": answer,
+        "tool_data": tool_data,
         "tools_used": tools_used,
         "confidence_score": score,
         "confidence_level": score_level,

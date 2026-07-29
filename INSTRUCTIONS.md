@@ -513,24 +513,14 @@ follow-up question.
 
 ### STEP 11 — Deployment
 
-**Goal**: a live, shareable link.
+**Goal**: a live, shareable link on Streamlit Community Cloud.
 
 **Do**:
-1. MongoDB Atlas — already set up in Step 0, just confirm it's not
-   IP-restricted to localhost only (allow access from anywhere, since Render's
-   IP isn't fixed on the free tier).
-2. Deploy FastAPI backend to **Render's free web service** (connect GitHub
-   repo, set env vars — `GROQ_API_KEY`, `TAVILY_API_KEY`, `MONGODB_URI` — in
-   its dashboard). Expect the free tier to sleep after ~15 min of inactivity;
-   the first request after that will be slow (cold start). Mention this
-   upfront if demoing live in an interview, so it doesn't look broken.
-3. Deploy Streamlit frontend to Streamlit Community Cloud, pointing its
-   backend URL at the deployed FastAPI service.
+1. MongoDB Atlas — confirm access is not IP-restricted to localhost (allow access from anywhere `0.0.0.0/0` so Streamlit Cloud can connect).
+2. Deploy Streamlit frontend application to **Streamlit Community Cloud** (connect GitHub repository `RakeshPathlavath07/Health_Insurance`, main file `frontend/streamlit_app.py`, set environment variables — `GROQ_API_KEY`, `TAVILY_API_KEY`, `MONGODB_URI` — in the Streamlit Secrets dashboard).
+3. The application runs standalone in-process on Streamlit Community Cloud as a single unified service (executing `dispatcher.route_and_execute()` directly without requiring a separate backend service).
 
-**Verify**: open the Streamlit Cloud URL from a different device/network and
-run a full conversation. Try it once after several minutes of inactivity too,
-so you know what the cold-start delay actually feels like before an
-interviewer sees it.
+**Verify**: open the Streamlit Cloud URL (`https://healthinsurancesystem.streamlit.app/`) from any device/network and run a full multi-turn conversation.
 
 ---
 

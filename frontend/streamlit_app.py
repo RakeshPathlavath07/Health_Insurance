@@ -24,15 +24,14 @@ from dotenv import load_dotenv
 from gtts import gTTS
 from streamlit_mic_recorder import mic_recorder
 
-load_dotenv()
+from backend.app.dispatcher import route_and_execute
+from backend.app.guardrails import validate_response
 
 st.set_page_config(
     page_title="Indian Health Insurance AI Assistant",
     page_icon="🏥",
     layout="wide"
 )
-
-BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000").rstrip("/")
 
 st.markdown("""
 <style>
@@ -525,7 +524,7 @@ if user_input and user_input != st.session_state.last_processed_query:
     st.session_state.submitted_text = ""
     st.rerun()
 
-# STAGE 2: If the last message is from the user, query backend API & render assistant answer
+# STAGE 2: If the last message is from the user, query multi-agent system directly & render assistant answer
 if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
     last_user_query = st.session_state.messages[-1]["content"]
 
@@ -536,32 +535,14 @@ if st.session_state.messages and st.session_state.messages[-1]["role"] == "user"
 
     with st.spinner("Analyzing policy data & querying multi-agent system..."):
         try:
-            response = requests.post(
-                f"{BACKEND_URL}/chat",
-                json={"session_id": st.session_state.session_id, "query": last_user_query},
-                timeout=15
-            )
-            if response.status_code == 200:
-                data = response.json()
-                answer = data.get("answer", "No response received.")
-                tools_used = data.get("tools_used", [])
-                confidence_score = data.get("confidence_score", 95)
-                confidence_level = data.get("confidence_level", "High Precision")
-            else:
-                raise Exception(f"Server returned HTTP {response.status_code}")
-        except Exception:
-            # Standalone Streamlit Cloud Fallback: Run multi-agent dispatcher directly in Python
-            try:
-                from backend.app.dispatcher import route_and_execute
-                from backend.app.guardrails import validate_response
-                res_dict = route_and_execute(last_user_query, session_id=st.session_state.session_id)
-                raw_answer = res_dict.get("answer", "")
-                tools_used = res_dict.get("tools_used", [])
-                confidence_score = res_dict.get("confidence_score", 95)
-                confidence_level = res_dict.get("confidence_level", "High Precision")
-                answer = validate_response(last_user_query, raw_answer)
-            except Exception as direct_e:
-                answer = f"Error processing query: {direct_e}"
+            res_dict = route_and_execute(last_user_query, session_id=st.session_state.session_id)
+            raw_answer = res_dict.get("answer", "")
+            tools_used = res_dict.get("tools_used", [])
+            confidence_score = res_dict.get("confidence_score", 95)
+            confidence_level = res_dict.get("confidence_level", "High Precision")
+            answer = validate_response(last_user_query, raw_answer, tool_data=res_dict.get("tool_data", ""))
+        except Exception as direct_e:
+            answer = f"Error processing query: {direct_e}"
 
     # Voice Audio Synthesis
     audio_data = None
