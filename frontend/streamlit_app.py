@@ -152,11 +152,11 @@ st.markdown("""
         transform: translateX(-50%) !important;
         width: calc(100% - 40px) !important;
         max-width: 800px !important;
-        background-color: #212121 !important;
-        border: 1px solid #383838 !important;
+        background-color: #FFFFFF !important;
+        border: 1.5px solid #D0D7DE !important;
         padding: 4px 14px !important;
         border-radius: 28px !important;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.35) !important;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.15) !important;
         z-index: 99999 !important;
         display: flex !important;
         flex-direction: row !important;
@@ -193,7 +193,7 @@ st.markdown("""
         background-color: transparent !important;
     }
 
-    /* USE MIX-BLEND-MODE TO STRIP ANY DARK/BLACK IFRAME BACKGROUND BOX AROUND MIC */
+    /* Mic Iframe Styling */
     div[data-testid="stHorizontalBlock"] iframe,
     iframe[title*="mic_recorder"],
     iframe[title*="streamlit_mic_recorder"] {
@@ -202,7 +202,6 @@ st.markdown("""
         border: none !important;
         box-shadow: none !important;
         outline: none !important;
-        mix-blend-mode: screen !important;
         height: 38px !important;
         width: 36px !important;
     }
@@ -220,7 +219,7 @@ st.markdown("""
         margin: 0px !important;
     }
 
-    /* Force full input chain to transparent inside dark capsule */
+    /* Force full input chain to transparent inside white capsule */
     div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="column"],
     div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="stVerticalBlock"],
     div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="stVerticalBlockBorderWrapper"],
@@ -247,10 +246,8 @@ st.markdown("""
         margin: 0 !important;
     }
 
-    /* --- FIX: Typed text visibility inside prompt box ---
-       Targets div[data-baseweb="input"], div[data-baseweb="base-input"], and input elements.
-       Enforces transparent background inside dark capsule, crisp white text (#FFFFFF),
-       glowing caret (#00E676), and clear placeholder text (#9E9E9E). */
+    /* --- FIX: Black Typed Text in Query Input Box ---
+       Forces crisp BLACK text (#000000), black caret (#000000), and dark grey placeholder (#555555). */
     div[data-testid="stHorizontalBlock"] div[data-testid="stTextInput"] input,
     div[data-testid="stHorizontalBlock"] input,
     div[data-baseweb="input"] input,
@@ -259,10 +256,11 @@ st.markdown("""
         height: 44px !important;
         width: 100% !important;
         font-size: 1.02rem !important;
+        font-weight: 500 !important;
         padding-left: 4px !important;
-        color: #FFFFFF !important;
-        -webkit-text-fill-color: #FFFFFF !important;
-        caret-color: #00E676 !important;
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+        caret-color: #000000 !important;
         background: transparent !important;
         background-color: transparent !important;
         border: none !important;
@@ -274,16 +272,16 @@ st.markdown("""
     div[data-baseweb="input"] input::placeholder,
     div[data-baseweb="base-input"] input::placeholder,
     input::placeholder {
-        color: #9E9E9E !important;
-        -webkit-text-fill-color: #9E9E9E !important;
+        color: #555555 !important;
+        -webkit-text-fill-color: #555555 !important;
         opacity: 1 !important;
     }
-    /* Neutralize browser autofill light background override */
+    /* Neutralize browser autofill background override */
     div[data-testid="stHorizontalBlock"] input:-webkit-autofill,
     div[data-baseweb="input"] input:-webkit-autofill,
     div[data-baseweb="base-input"] input:-webkit-autofill {
-        -webkit-text-fill-color: #FFFFFF !important;
-        -webkit-box-shadow: 0 0 0px 1000px #212121 inset !important;
+        -webkit-text-fill-color: #000000 !important;
+        -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset !important;
         transition: background-color 9999s ease-in-out 0s;
     }
 </style>
