@@ -220,15 +220,21 @@ st.markdown("""
         margin: 0px !important;
     }
 
-    /* Force full input chain to 100% width */
+    /* Force full input chain to transparent inside dark capsule */
     div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="column"],
     div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="stVerticalBlock"],
     div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="stVerticalBlockBorderWrapper"],
     div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="element-container"],
     div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="stTextInput"],
     div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="stTextInput"] > div,
+    div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-baseweb="input"],
+    div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-baseweb="input"] > div,
     div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-baseweb="base-input"],
-    div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-baseweb="base-input"] > div {
+    div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-baseweb="base-input"] > div,
+    div[data-baseweb="input"],
+    div[data-baseweb="input"] > div,
+    div[data-baseweb="base-input"],
+    div[data-baseweb="base-input"] > div {
         width: 100% !important;
         max-width: 100% !important;
         flex: 1 1 auto !important;
@@ -241,20 +247,22 @@ st.markdown("""
         margin: 0 !important;
     }
 
-    /* --- FIX: typed text was invisible inside the dark capsule ---
-       Some browsers/Streamlit themes render input text color via
-       -webkit-text-fill-color, which silently overrides `color`.
-       We force both, plus the caret and placeholder colors, with a
-       selector specific enough to win the cascade. */
+    /* --- FIX: Typed text visibility inside prompt box ---
+       Targets div[data-baseweb="input"], div[data-baseweb="base-input"], and input elements.
+       Enforces transparent background inside dark capsule, crisp white text (#FFFFFF),
+       glowing caret (#00E676), and clear placeholder text (#9E9E9E). */
     div[data-testid="stHorizontalBlock"] div[data-testid="stTextInput"] input,
-    div[data-baseweb="base-input"] input {
+    div[data-testid="stHorizontalBlock"] input,
+    div[data-baseweb="input"] input,
+    div[data-baseweb="base-input"] input,
+    input[type="text"] {
         height: 44px !important;
         width: 100% !important;
         font-size: 1.02rem !important;
         padding-left: 4px !important;
         color: #FFFFFF !important;
         -webkit-text-fill-color: #FFFFFF !important;
-        caret-color: #FFFFFF !important;
+        caret-color: #00E676 !important;
         background: transparent !important;
         background-color: transparent !important;
         border: none !important;
@@ -262,14 +270,18 @@ st.markdown("""
         outline: none !important;
     }
     div[data-testid="stHorizontalBlock"] div[data-testid="stTextInput"] input::placeholder,
-    div[data-baseweb="base-input"] input::placeholder {
+    div[data-testid="stHorizontalBlock"] input::placeholder,
+    div[data-baseweb="input"] input::placeholder,
+    div[data-baseweb="base-input"] input::placeholder,
+    input::placeholder {
         color: #9E9E9E !important;
         -webkit-text-fill-color: #9E9E9E !important;
         opacity: 1 !important;
     }
-    /* Autofill sometimes forces a light background + dark text via
-       browser UA styles; neutralize that too. */
-    div[data-testid="stHorizontalBlock"] input:-webkit-autofill {
+    /* Neutralize browser autofill light background override */
+    div[data-testid="stHorizontalBlock"] input:-webkit-autofill,
+    div[data-baseweb="input"] input:-webkit-autofill,
+    div[data-baseweb="base-input"] input:-webkit-autofill {
         -webkit-text-fill-color: #FFFFFF !important;
         -webkit-box-shadow: 0 0 0px 1000px #212121 inset !important;
         transition: background-color 9999s ease-in-out 0s;
